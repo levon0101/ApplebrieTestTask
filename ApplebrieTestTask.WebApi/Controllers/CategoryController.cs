@@ -18,17 +18,62 @@ namespace ApplebrieTestTask.WebApi.Controllers
 
 
         [HttpGet]
-        public IEnumerable<Category> GetCategories()
+        public ActionResult<IEnumerable<Category>> GetCategories()
         {
-            return _categoryRepository.GetCategories();
+            var categoriesFromDb = _categoryRepository.GetCategories();
+
+            if (categoriesFromDb == null) return NotFound();
+            
+            return Ok(categoriesFromDb);
         }
 
-        [HttpGet("{id}")]
-        public Category GetCategory(int id)
+        [HttpGet("{id}", Name = "GetCategory")]
+        public ActionResult<Category> GetCategory(int id)
         {
-            return _categoryRepository.GetCategory(id);
+
+            var categoryFromDb = _categoryRepository.GetCategory(id);
+
+            if (categoryFromDb == null) return NotFound();
+            
+            return Ok(categoryFromDb);
         }
 
+
+        [HttpPost]
+        public IActionResult CreateCategory([FromBody]Category category)
+        {
+            _categoryRepository.AddCategory(category);
+
+            return CreatedAtRoute("GetCategory", new { id = category.Id }, category);
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult RemoveCategory(int id)
+        {
+            var categoryFromDb = _categoryRepository.GetCategory(id);
+
+            if (categoryFromDb == null) return NotFound();
+
+            _categoryRepository.RemoveCategory(categoryFromDb);
+            return NoContent();
+
+        }
+
+
+        [HttpPut("{id}")]
+        public IActionResult UpdateCategory(int id, [FromBody] Category category)
+        {
+            var categoryFromDb = _categoryRepository.GetCategory(id);
+
+            if (categoryFromDb == null) return NotFound();
+
+
+            categoryFromDb.Name = category.Name;
+
+            _categoryRepository.SaveChanges();
+
+            return CreatedAtRoute("GetCategory", new {id = category.Id}, categoryFromDb);
+        }
 
     }
 }

@@ -13,6 +13,6 @@ namespace ApplebrieTestTask.WebApi.Entitities
 
         public string Name { get; set; }
 
-        public IEnumerable<User> Users { get; set; }
+        public ICollection<User> Users { get; set; } = new List<User>();
     }
 }

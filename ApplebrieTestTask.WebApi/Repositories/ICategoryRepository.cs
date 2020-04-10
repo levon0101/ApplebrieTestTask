@@ -8,6 +8,7 @@ namespace ApplebrieTestTask.WebApi.Repositories
         Category GetCategory(int id);
         IEnumerable<Category> GetCategories();
         void AddCategory(Category category);
-        void DeleteCategory(Category category);
+        void RemoveCategory(Category category);
+        void SaveChanges();
     }
 }

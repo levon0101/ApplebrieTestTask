@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using ApplebrieTestTask.WebApi.Entitities;
 
@@ -17,31 +16,31 @@ namespace ApplebrieTestTask.WebApi.Repositories
 
         public Category GetCategory(int id)
         {
-            //return new Category{Id = id, Name = "Programmers"};
             return _dbContext.Categories.SingleOrDefault(c => c.Id == id);
         }
 
         public IEnumerable<Category> GetCategories()
         {
-            //return new List<Category>
-            //{
-            //    new Category{Id = 1, Name = "Programmers"},
-            //    new Category{Id = 2, Name = "TeamLiders"},
-            //    new Category{Id = 3, Name = "Designers"},
-            //    new Category{Id = 4, Name = "Recruiters"},
-            //    };
 
             return _dbContext.Categories.ToList();
         }
 
         public void AddCategory(Category category)
         {
-            throw new NotImplementedException();
+            _dbContext.Categories.Add(category);
+            _dbContext.SaveChanges();
         }
 
-        public void DeleteCategory(Category category)
+        public void RemoveCategory(Category category)
         {
-            throw new NotImplementedException();
+            _dbContext.Categories.Remove(category);
+            _dbContext.SaveChanges();
+        }
+         
+
+        public void SaveChanges()
+        {
+            _dbContext.SaveChanges();
         }
 
     }
