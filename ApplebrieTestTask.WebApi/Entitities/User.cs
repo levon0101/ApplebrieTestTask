@@ -16,9 +16,9 @@ namespace ApplebrieTestTask.WebApi.Entitities
 
         public string LastName { get; set; }
 
-        [Required]
         public Category Category { get; set; }
 
+        public int CategoryId { get; set; }
 
     }
 }

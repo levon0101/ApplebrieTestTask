@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace ApplebrieTestTask.WebApi.Entitities
@@ -11,5 +12,7 @@ namespace ApplebrieTestTask.WebApi.Entitities
         [MaxLength(50)]
 
         public string Name { get; set; }
+
+        public IEnumerable<User> Users { get; set; }
     }
 }
