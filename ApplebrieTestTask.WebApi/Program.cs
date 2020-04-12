@@ -24,8 +24,8 @@ namespace ApplebrieTestTask.WebApi
                 {
                     var context = scope.ServiceProvider.GetService<AppDbContext>();
 
-                    //context.Database.EnsureCreated();
-                    context.Database.Migrate();
+                    context.Database.EnsureCreated();
+                    //context.Database.Migrate();
                 }
                 catch (Exception e)
                 {

@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using ApplebrieTestTask.WebApi.Dto;
 using ApplebrieTestTask.WebApi.Entitities;
 using ApplebrieTestTask.WebApi.Repositories;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ApplebrieTestTask.WebApi.Controllers
@@ -10,41 +12,50 @@ namespace ApplebrieTestTask.WebApi.Controllers
     public class CategoryController : ControllerBase
     {
         private readonly ICategoryRepository _categoryRepository;
+        private readonly IMapper _mapper;
 
-        public CategoryController(ICategoryRepository categoryRepository)
+        public CategoryController(ICategoryRepository categoryRepository, IMapper mapper)
         {
             _categoryRepository = categoryRepository;
+            _mapper = mapper;
         }
 
 
         [HttpGet]
-        public ActionResult<IEnumerable<Category>> GetCategories()
+        public ActionResult<IEnumerable<CategoryDto>> GetCategories()
         {
             var categoriesFromDb = _categoryRepository.GetCategories();
 
             if (categoriesFromDb == null) return NotFound();
             
-            return Ok(categoriesFromDb);
+            
+            return Ok(_mapper.Map<IEnumerable<CategoryDto>>(categoriesFromDb));
         }
 
+
         [HttpGet("{id}", Name = "GetCategory")]
-        public ActionResult<Category> GetCategory(int id)
+        public ActionResult<CategoryDto> GetCategory(int id)
         {
 
             var categoryFromDb = _categoryRepository.GetCategory(id);
 
             if (categoryFromDb == null) return NotFound();
+
             
-            return Ok(categoryFromDb);
+            return Ok(_mapper.Map<CategoryDto>(categoryFromDb));
         }
 
 
         [HttpPost]
-        public IActionResult CreateCategory([FromBody]Category category)
+        public IActionResult CreateCategory([FromBody]CategoryDto category)
         {
-            _categoryRepository.AddCategory(category);
 
-            return CreatedAtRoute("GetCategory", new { id = category.Id }, category);
+            var categoryEntity = _mapper.Map<Category>(category);
+            _categoryRepository.AddCategory(categoryEntity);
+
+            var categoryToReturn = _mapper.Map<CategoryDto>(categoryEntity);
+
+            return CreatedAtRoute("GetCategory", new { id = category.Id }, categoryToReturn);
         }
 
         [HttpDelete("{id}")]
@@ -61,7 +72,7 @@ namespace ApplebrieTestTask.WebApi.Controllers
 
 
         [HttpPut("{id}")]
-        public IActionResult UpdateCategory(int id, [FromBody] Category category)
+        public IActionResult UpdateCategory(int id, [FromBody] CategoryDto category)
         {
             var categoryFromDb = _categoryRepository.GetCategory(id);
 
@@ -72,7 +83,9 @@ namespace ApplebrieTestTask.WebApi.Controllers
 
             _categoryRepository.SaveChanges();
 
-            return CreatedAtRoute("GetCategory", new {id = category.Id}, categoryFromDb);
+            var categoryToReturn = _mapper.Map<CategoryDto>(categoryFromDb);
+
+            return CreatedAtRoute("GetCategory", new {id = category.Id}, categoryToReturn);
         }
 
     }

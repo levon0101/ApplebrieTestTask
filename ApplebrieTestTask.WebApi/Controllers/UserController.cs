@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using ApplebrieTestTask.WebApi.Dto;
 using ApplebrieTestTask.WebApi.Entitities;
 using ApplebrieTestTask.WebApi.Repositories;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ApplebrieTestTask.WebApi.Controllers
@@ -10,36 +12,49 @@ namespace ApplebrieTestTask.WebApi.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
+        private readonly IMapper _mapper;
 
-        public UserController(IUserRepository userRepository)
+        public UserController(IUserRepository userRepository, IMapper mapper)
         {
             _userRepository = userRepository;
+            _mapper = mapper;
         }
 
 
         [HttpGet]
-        public ActionResult<IEnumerable<User>> GetAllUsers()
+        public ActionResult<IEnumerable<UserDto>> GetAllUsers()
         {
-            return Ok(_userRepository.GetUsers());
+            var coursesFromRepo = _userRepository.GetUsers();
+
+            if (coursesFromRepo == null) return NotFound();
+
+
+            return Ok(_mapper.Map<IEnumerable<UserDto>>(coursesFromRepo));
         }
 
 
         [HttpGet("{id}", Name = "GetUser")]
-        public ActionResult<User> GetUser(int id)
+        public ActionResult<UserDto> GetUser(int id)
         {
             var userFromDb = _userRepository.GetUser(id);
 
             if (userFromDb == null) return NotFound();
 
-            return Ok(userFromDb);
+            return Ok(_mapper.Map<User,UserDto>(userFromDb));
         }
 
 
         [HttpPost]
-        public IActionResult CreateUser([FromBody]User user)
+        public IActionResult CreateUser([FromBody]UserDto user)
         {
-            _userRepository.AddUser(user);
-            return CreatedAtRoute("GetUser",new{id=user.Id}, user);
+            var userEntity = _mapper.Map<User>(user);
+
+            _userRepository.AddUser(userEntity);
+
+            var userToReturn = _mapper.Map<UserDto>(userEntity);
+
+
+            return CreatedAtRoute("GetUser",new{id=user.Id}, userToReturn);
         }
 
 
@@ -48,7 +63,7 @@ namespace ApplebrieTestTask.WebApi.Controllers
         {
             var userFromDb = _userRepository.GetUser(id);
             
-            if (userFromDb == null) NotFound();
+            if (userFromDb == null) return NotFound();
             
             _userRepository.DeleteUser(userFromDb);
 
@@ -56,11 +71,11 @@ namespace ApplebrieTestTask.WebApi.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateUser(int id, [FromBody] User user)
+        public IActionResult UpdateUser(int id, [FromBody] UserDto user)
         {
             var userFromDb = _userRepository.GetUser(id);
 
-            if (userFromDb == null) NotFound();
+            if (userFromDb == null) return NotFound();
 
 
             userFromDb.FirstName = user.FirstName;
@@ -69,8 +84,9 @@ namespace ApplebrieTestTask.WebApi.Controllers
 
             _userRepository.SaveChanges();
 
+            var userToReturn = _mapper.Map<UserDto>(userFromDb);
 
-            return CreatedAtRoute("GetUser", new {id = id}, userFromDb);
+            return CreatedAtRoute("GetUser", new {id = id}, userToReturn);
         }
     }
 }
